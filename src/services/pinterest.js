@@ -5,11 +5,15 @@ const axios = require('axios');
 const { readJsonFile, writeJsonFile } = require('../utils/jsonFileManager');
 require('dotenv').config();
 
-async function pinImageToBoard(board, imageUrl, url, accessToken, discordUserId = null, pinterestUserId = null) {
+async function pinImageToBoard(board, imageUrl, url, accessToken, discordUserId = null, pinterestUserId = null, options = {}) {
   if (!accessToken) {
     return { success: false, error: 'Pinterest access token not set.' };
   }
   const apiUrl = 'https://api.pinterest.com/v5/pins';
+  
+  // Extract optional metadata for Pinterest SEO
+  const { title = '', description = '', altText = '' } = options;
+  
   const data = {
     board_id: board,
     media_source: {
@@ -18,6 +22,18 @@ async function pinImageToBoard(board, imageUrl, url, accessToken, discordUserId 
     },
     link: url
   };
+  
+  // Add title, description, alt_text if provided (critical for Pinterest discovery)
+  if (title) {
+    data.title = title.substring(0, 100); // Pinterest limit: 100 chars
+  }
+  if (description) {
+    data.description = description.substring(0, 500); // Pinterest limit: 500 chars
+  }
+  if (altText) {
+    data.alt_text = altText.substring(0, 500); // Pinterest limit: 500 chars
+  }
+  
   console.log('Sending to Pinterest:', JSON.stringify(data, null, 2));
   
   const makeRequest = async (token) => {

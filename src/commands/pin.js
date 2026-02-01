@@ -24,6 +24,16 @@ const data = new SlashCommandBuilder()
     option.setName('board')
       .setDescription('Optional board name to pin to (defaults to keyword)')
       .setRequired(false)
+  )
+  .addStringOption(option =>
+    option.setName('title')
+      .setDescription('Pin title (defaults to keyword-based title)')
+      .setRequired(false)
+  )
+  .addStringOption(option =>
+    option.setName('description')
+      .setDescription('Pin description for SEO (defaults to keyword-based description)')
+      .setRequired(false)
   );
 
 async function execute(interaction) {
@@ -32,6 +42,14 @@ async function execute(interaction) {
   const keyword = interaction.options.getString('keyword');
   const url = interaction.options.getString('url');
   const boardOverride = interaction.options.getString('board');
+  const customTitle = interaction.options.getString('title');
+  const customDescription = interaction.options.getString('description');
+  
+  // Build default title and description from keyword if not provided
+  // This is CRITICAL for Pinterest SEO - empty descriptions = invisible pins
+  const titleCase = (str) => str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+  const pinTitle = customTitle || `${titleCase(keyword)}`;
+  const pinDescription = customDescription || `Discover beautiful ${keyword.toLowerCase()} images and inspiration. Click to learn more about ${keyword.toLowerCase()}.`;
 
   const channel = interaction.channel;
   const lastPinMessage = await findLastPinCommand(channel);
@@ -99,7 +117,11 @@ async function execute(interaction) {
         results.push(`Message ${messageId}: No image found.`);
         continue;
       }
-      const pinResult = await pinImageToBoard(boardId, imageUrl, url, activeAccount.accessToken, interaction.user.id, accountId);
+      const pinResult = await pinImageToBoard(boardId, imageUrl, url, activeAccount.accessToken, interaction.user.id, accountId, {
+        title: pinTitle,
+        description: pinDescription,
+        altText: `${titleCase(keyword)} image`
+      });
       if (pinResult.success) {
         await recordPin(accountId, Date.now());
         const countAfter = await getRecentPinCount(accountId, Date.now());

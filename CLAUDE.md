@@ -29,7 +29,7 @@ mjpin is a modular Node.js Discord bot that automates pinning Midjourney-generat
 ## Core Commands Implementation
 
 ### Workflow Commands
-- **/pin**: Pin up to 10 images to Pinterest boards using keyword search with destination URL. Automatically searches channel history after last /pin command for matching images and pins them to board matching keyword (or specified board). Rate limited to 100 pins per 12 hours per Pinterest account. Parameters: `keyword` (required), `url` (required), `board` (optional, defaults to keyword).
+- **/pin**: Pin up to 10 images to Pinterest boards using keyword search with destination URL. Automatically searches channel history after last /pin command for matching images and pins them to board matching keyword (or specified board). Rate limited to 100 pins per 12 hours per Pinterest account. **Now includes title, description, and alt_text for Pinterest SEO discoverability.** Parameters: `keyword` (required), `url` (required), `board` (optional, defaults to keyword), `title` (optional, defaults to keyword), `description` (optional, defaults to keyword-based description).
 - **/prompt**: Generate Midjourney prompts using OpenAI with per-guild model selection
 
 ### Account Management Commands
